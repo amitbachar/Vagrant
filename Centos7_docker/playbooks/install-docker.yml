@@ -1,0 +1,10 @@
+---
+
+- hosts: localhost
+  tasks:
+  - include_role:
+       name: ansible-role-docker 
+    vars:
+      docker_edition: 'ce' 
+      docker_users:
+        - vagrant 
