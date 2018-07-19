@@ -87,6 +87,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
+  <<COMMENT1
+  : '
   config.vm.provision "shell", inline: <<-SHELL
      
       printline() {
@@ -138,8 +140,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      echo ssh vagrant@`ifconfig -a eth1 | grep "inet " | awk '{print $2}'`
      echo 'happy vagranting '
    SHELL
+  COMMENT1
+  '
   #onfig.vm.provision :shell, :args => 'hello, world!' , inline: $script
   #config.vm.provision :shell, path: "bootstrap.sh"
+  config.vm.provision :shell, path: "provision.sh"
   #config.vm.provision "shell" do |s|
   #  s.inline = $script
   #  s.args   = "'hello, world!'"
