@@ -55,7 +55,7 @@ echo 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*' > ssh
 chmod +x ssh
 GIT_SSH="$PWD/ssh" git clone git@github.com:amitbachar/Vagrant.git || die
 GIT_SSH="$PWD/ssh" git clone git@github.com:geerlingguy/ansible-role-docker.git || die
-sudo ansible-playbook /vagrant/playbooks/install-docker.yml
+#sudo ansible-playbook /vagrant/playbooks/install-docker.yml
 printline
 ifconfig -a | grep "inet ";
 printline
