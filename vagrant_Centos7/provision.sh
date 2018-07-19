@@ -1,4 +1,4 @@
-     #!/bin/sh
+#!/bin/sh
      
 # Global Defines
 ERROR=1
@@ -45,8 +45,8 @@ sudo systemctl restart sshd;
 sudo systemctl status sshd;
 #ssh-keygen -b 2048 -t rsa -f ~/.ssh/MyCentos7_vagrant_sshkey -q -N "" -C "amit.bachar@gmail.com"
 #ssh-keygen -b 2048 -t rsa -f ~/.ssh/sshkey -q -N ""
-pwd
-id
+info pwd
+info id
 # copy ssh keys for git clone
 #if [ ! -d ~vagrant/.ssh ]
 #then
@@ -75,4 +75,4 @@ ifconfig -a | grep "inet ";
 printline
 info ssh vagrant@`ifconfig -a eth1 | grep "inet " | awk '{print $2}'`
 printline
-echo 'happy vagranting '
+info 'happy vagranting '
