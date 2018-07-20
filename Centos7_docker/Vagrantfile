@@ -16,6 +16,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #Box location 
   #config.vm.box_url = "centos"
   config.vm.box = "centos/7"
+  config.vm.define "amitbac"
   config.vm.hostname = "myCentos7.bachar.com"
   config.vm.provider "virtualbox" do |v|
       v.memory = 1024
@@ -27,14 +28,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.network "private_network", type: "dhcp"
   #config.vm.network "private_network", ip: "192.168.50.4"
-  config.vm.synced_folder "./playbooks", "/playbooks"
+  #config.vm.synced_folder "./playbooks", "/playbooks"
   config.vm.provision "shell" do |s|
     s.inline = $script
     s.args   = "'I am provisioning...!'"
   end
   config.vm.provision :shell, path: "scripts/provision.sh"
-  config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "/vagrant/playbooks/install-docker.yml"
-  end
+  #config.vm.provision "ansible" do |ansible|
+  #  ansible.playbook = "playbooks/install-docker.yml"
+  #end
 
 end
