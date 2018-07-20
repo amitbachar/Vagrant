@@ -1,0 +1,45 @@
+---
+# ansible-playbook -i inventory create-ssh-keys.yml --extra-vars "remove_keys=false" -vv
+- hosts: host1
+  become: true
+  gather_facts: false
+
+  vars:
+    remove_keys : false
+
+  tasks:
+  - name: remove existing ssh_host keys
+    when: remove_keys | bool
+    file: path={{ item }} state=absent
+    with_items:
+      - "/etc/ssh/ssh_host_rsa_key"
+      - "/etc/ssh/ssh_host_dsa_key"
+      - "/etc/ssh/ssh_host_ecdsa_key"
+
+  - name: Generate /etc/ssh/ RSA host key
+    shell : ssh-keygen -q -t rsa -f /etc/ssh/ssh_host_rsa_key -C "" -N ""
+    args:
+      creates: /etc/ssh/ssh_host_rsa_key
+    register: output
+  - debug: var=output.stdout_lines
+
+  - name: Generate /etc/ssh/ DSA host key
+    shell : ssh-keygen -q -t dsa -f /etc/ssh/ssh_host_dsa_key -C "" -N ""
+    args:
+      creates: /etc/ssh/ssh_host_dsa_key
+    register: output
+  - debug: var=output.stdout_lines
+
+  - name: Generate /etc/ssh/ ECDSA host key
+    shell : ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -C "" -N ""
+    args:
+      creates: /etc/ssh/ssh_host_ecdsa_key
+    register: output
+  - debug: var=output.stdout_lines
+
+  - name: Set authorized key took from file
+    authorized_key:
+      user: vagrant
+      state: present
+      key: "{{ lookup('file', '/home/vagrant/.ssh/id_rsa.pub') }}"
+
