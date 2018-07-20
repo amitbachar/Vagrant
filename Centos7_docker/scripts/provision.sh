@@ -63,12 +63,31 @@ then
 	rm -rf Vagrant
 fi
 GIT_SSH="$PWD/ssh" git clone git@github.com:amitbachar/Vagrant.git || die
-if [ -d ansible-role-docker ]
+# set passwordless ssh keys for ansible run
+#sudo -u vagrant ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
+#sudo -u vagrant cat .ssh/id_rsa.pub >> .ssh/authorized_keys ; chmod 640 .ssh/authorized_keys
+ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N "" 
+cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys ; chmod 640 /root/.ssh/authorized_keys
+#cat ~/.ssh/id_rsa.pub | ssh username@remote_host "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+
+# downloading docker ansible role from git
+if [ -d /vagrant/playbooks/roles/ansible-role-docker ]
 then
-	rm -rf ansible-role-docker
+	rm -rf /vagrant/playbooks/roles/ansible-role-docker 
 fi
-GIT_SSH="$PWD/ssh" git clone git@github.com:geerlingguy/ansible-role-docker.git || die
-sudo ansible-playbook /vagrant/playbooks/install-docker.yml -vv || die
+mkdir -p /vagrant/playbooks/roles/ansible-role-docker
+GIT_SSH="$PWD/ssh" git clone git@github.com:geerlingguy/ansible-role-docker.git /vagrant/playbooks/roles/ansible-role-docker || die
+
+# updating hosts file with server external IP
+extIP=`ifconfig -a eth1 | grep "inet " | awk '{print $2}'`
+HOST=`hostname`
+sed -i "/$HOST/ s/.*/$extIP\t$HOST/g" /etc/hosts
+
+# Installing docker via ansible
+cd /vagrant/playbooks/ 
+ansible-playbook -i inventory install-docker.yml -vv || die
+
+# testing docker installation by running nginx container
 docker run --name bibi-nginx -d -p 8080:80 nginx
 docker ps
 nginx_test=`curl -s -o /dev/null -w "%{http_code}" http://localhost:8080`
@@ -81,6 +100,6 @@ fi
 printline
 ifconfig -a | grep "inet ";
 printline
-info ssh vagrant@`ifconfig -a eth1 | grep "inet " | awk '{print $2}'`
+info ssh vagrant@${extIP}
 printline
 info 'happy vagranting '

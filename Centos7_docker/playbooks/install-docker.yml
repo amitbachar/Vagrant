@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: dockerservers
   tasks:
   - include_role:
        name: ansible-role-docker 

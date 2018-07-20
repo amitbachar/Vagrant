@@ -17,7 +17,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #config.vm.box_url = "centos"
   config.vm.box = "centos/7"
   config.vm.define "amitbac"
-  config.vm.hostname = "myCentos7.bachar.com"
+  config.vm.hostname = "host1.bachar.com"
   config.vm.provider "virtualbox" do |v|
       v.memory = 1024
       #v.name = "myCentos7"

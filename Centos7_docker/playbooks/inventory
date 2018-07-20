@@ -1,0 +1,5 @@
+host1 ansible_connection=ssh ansible_user=root ansible_host=host1.bachar.com 
+host2 ansible_connection=ssh ansible_user=root ansible_host=localhost 
+
+[dockerservers]
+host1
