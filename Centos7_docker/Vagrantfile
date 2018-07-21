@@ -12,12 +12,36 @@ echo $1
 date > /etc/vagrant_provisioned_at
 SCRIPT
 
+## usage 
+
+## vagrant --hostname=host1.bachar.com up
+## vagrant --hostname=host1.bachar.com provision
+## with arguments to the provision script
+## SHELL_ARGS='-d yes -n my-nginx -p 8080' vagrant --hostname=host1.bachar.com up
+ 
+hostname = 'host1.bachar.com'
+user = 'amitbac'
+
+require 'getoptlong'
+
+opts = GetoptLong.new(
+  [ '--hostname', GetoptLong::OPTIONAL_ARGUMENT ]
+)
+
+opts.each do |opt, arg|
+  case opt
+    when '--hostname'
+      hostname=arg
+  end
+end
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #Box location 
   #config.vm.box_url = "centos"
+  config.vm.post_up_message = "machine name is:" + hostname
   config.vm.box = "centos/7"
-  config.vm.define "amitbac"
-  config.vm.hostname = "host1.bachar.com"
+  config.vm.define hostname
+  config.vm.hostname = hostname
   config.vm.provider "virtualbox" do |v|
       v.memory = 1024
       #v.name = "myCentos7"
@@ -33,7 +57,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     s.inline = $script
     s.args   = "'I am provisioning...!'"
   end
-  config.vm.provision :shell, path: "scripts/provision.sh"
+  ## to use it SHELL_ARGS='arg1 arg2' vagrant provision
+  #config.vm.provision :shell, path: "scripts/provision.sh", args: ENV['SHELL_ARGS']
+  #config.vm.provision :shell, path: "scripts/provision.sh", args: user
+  config.vm.provision "shell" do |s|
+    s.path = "scripts/provision.sh"
+    s.args = ENV['SHELL_ARGS'] 
+  end
   #config.vm.provision "ansible" do |ansible|
   #  ansible.playbook = "playbooks/install-docker.yml"
   #end
