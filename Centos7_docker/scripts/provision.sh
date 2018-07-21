@@ -31,7 +31,8 @@ die()
 	exit ${ERROR}
 }
       
-     
+# update all yum packages
+yum update -y     
 # install ifconfig
 sudo yum install net-tools -y;
 # install ansible
@@ -45,6 +46,12 @@ sudo systemctl restart sshd;
 sudo systemctl status sshd;
 #ssh-keygen -b 2048 -t rsa -f ~/.ssh/MyCentos7_vagrant_sshkey -q -N "" -C "amit.bachar@gmail.com"
 #ssh-keygen -b 2048 -t rsa -f ~/.ssh/sshkey -q -N ""
+tee -a .ssh/config << END
+Host github.com
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+END
+chmod 400 .ssh/config
 printline
 echo pwd = `pwd`
 id
