@@ -51,7 +51,7 @@ while getopts ":n:p:da" opt; do
             ;;
         a)
             echo export http_proxy=genproxy:8080 >> /root/.bashrc
-			echo export https_proxy=https://genproxy:8080 >> /root/.bashrc
+	    echo export https_proxy=https://genproxy:8080 >> /root/.bashrc
             echo proxy=http://genproxy:8080 >> /etc/yum.conf
             #export http_proxy=http://genproxy:8080/
             #echo "http_proxy => $http_proxy"
