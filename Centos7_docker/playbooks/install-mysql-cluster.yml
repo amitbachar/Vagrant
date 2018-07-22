@@ -1,0 +1,69 @@
+---
+# ansible-playbook -i inventory create-ssh-keys.yml --extra-vars "remove_keys=false" -vv
+- hosts: host1
+  become: true
+  gather_facts: false
+
+  vars:
+    remove_keys : false
+    docker_network_name: cluster
+
+  tasks:
+  - name: create an internal Docker network
+    #shell : docker network create "{{ docker_network_name }}" --subnet=192.168.0.0/16
+    docker_network:
+        name: "{{ docker_network_name }}"
+        #driver_options:
+        #  com.docker.network.bridge.name: net2
+        ipam_options:
+            subnet: '192.168.0.0/16'
+            #gateway: 172.3.26.1
+            iprange: '192.168.0.0/24'
+    register: output
+  - debug: var=output.stdout_lines
+  
+  - name: start the management node
+    #shell : docker run -d --net="{{ docker_network_name }}" --name=management1 --ip=192.168.0.2 mysql/mysql-cluster ndb_mgmd
+    docker:
+        name: management1
+        image: mysql/mysql-cluster
+        command: ndb_mgmd
+        detach: yes
+        state: started
+        networks:
+        - name: "{{ docker_network_name }}"
+          ipv4_address: 192.168.0.2
+    register: output
+  - debug: var=output.stdout_lines
+  
+  - name: start data node 1
+    #shell : docker run -d --net=cluster --name=ndb1 --ip=192.168.0.3 mysql/mysql-cluster ndbd
+    docker:
+        name: ndb1
+        image: mysql/mysql-cluster
+        command: ndbd
+        detach: yes
+        state: started
+        networks:
+        - name: "{{ docker_network_name }}"
+          ipv4_address: 192.168.0.3
+    register: output
+  - debug: var=output.stdout_lines
+  
+  - name: start MySQL server node
+    #shell : docker run -d --net=cluster --name=mysql1 --ip=192.168.0.10 -e MYSQL_RANDOM_ROOT_PASSWORD=true mysql/mysql-cluster mysqld
+    docker:
+        name: mysql1
+        image: mysql/mysql-cluster
+        command: mysqld
+        detach: yes
+        state: started
+        networks:
+        - name: "{{ docker_network_name }}"
+          ipv4_address: 192.168.0.10
+        env:
+            MYSQL_RANDOM_ROOT_PASSWORD: true
+    register: output
+  - debug: var=output.stdout_lines
+
+  
