@@ -1,0 +1,4 @@
+host1 ansible_connection=ssh ansible_user=admin ansible_host=host1.bachar.com
+
+[database]
+host1

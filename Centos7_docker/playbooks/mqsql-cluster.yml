@@ -1,0 +1,4 @@
+- hosts: database
+  roles:
+    - role: MySQL-cluster 
+      become: yes
