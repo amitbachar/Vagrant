@@ -31,61 +31,37 @@ die()
 	exit ${ERROR}
 }
 
-install_docker=no
-nginx_name=bibi-nginx
-nginx_port=8080
+init()
+{
+	install_docker=no
+	nginx_name=bibi-nginx
+	nginx_port=8080
+	install_mysql_cluster=no
+}
 
-while getopts ":n:p:da" opt; do
-    case "$opt" in
-        n)
-            nginx_name="$OPTARG"
-            echo "nginx_name => $nginx_name" 
-            ;;
-        p)
-            nginx_port="$OPTARG"
-            echo "nginx_port => $nginx_port" 
-            ;;
-        d)
-            install_docker="yes"
-            echo "install_docker => $install_docker"
-            ;;
-        a)
-            echo export http_proxy=genproxy:8080 >> /root/.bashrc
-	    echo export https_proxy=https://genproxy:8080 >> /root/.bashrc
-            echo proxy=http://genproxy:8080 >> /etc/yum.conf
-            #export http_proxy=http://genproxy:8080/
-            #echo "http_proxy => $http_proxy"
-            #export https_proxy=https://genproxy:8080/
-            #echo "https_proxy => $https_proxy"
-            ;;
-    esac
-done
-
-
+install_3rd_party()
+{    
 # update all yum packages
 #yum update -y     
 # install ifconfig
-yum install net-tools -y;
+sudo yum install net-tools -y;
+# install ansible
+sudo yum install ansible -y;
+info ansible --version
+# install git
+sudo yum install -y git || die
+# Install pip
+curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" || die
+python get-pip.py || die
+# enable ssh login with username and password
+sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config || die
+sudo systemctl restart sshd;
+sudo systemctl status sshd;
 
 # updating hosts file with server external IP
 extIP=`ifconfig -a eth1 | grep "inet " | awk '{print $2}'`
 HOST=`hostname`
 sed -i "/$HOST/ s/.*/$extIP\t$HOST/g" /etc/hosts
-printline
-ifconfig -a | grep "inet ";
-printline
-info ssh vagrant@${extIP}
-printline
-
-# install ansible
-yum install ansible -y;
-info ansible --version
-# install git
-yum install -y git || die
-# enable ssh login with username and password
-sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config || die
-systemctl restart sshd;
-systemctl status sshd;
 
 printline
 echo pwd = `pwd`
@@ -93,7 +69,7 @@ id
 echo arguments = $@
 printline
 echo HOST = $HOST
-echo External IP = $extIP
+echo External IP = extIP
 printline
 
 #ssh-keygen -b 2048 -t rsa -f ~/.ssh/MyCentos7_vagrant_sshkey -q -N "" -C "amit.bachar@gmail.com"
@@ -131,10 +107,10 @@ then
 fi
 #GIT_SSH="$PWD/ssh" git clone git@github.com:amitbachar/Vagrant.git || die
 git clone git@github.com:amitbachar/Vagrant.git || die
+}
 
-echo "install_docker => $install_docker"
-if [ $install_docker == yes ]
-then
+install_docker()
+{
 	# downloading docker ansible role from git
 	if [ -d /vagrant/playbooks/roles/ansible-role-docker ]
 	then
@@ -146,8 +122,8 @@ then
 
 	# Installing docker via ansible
 	cd /vagrant/playbooks/
-	sed -i "s/ansible_host=host1.bachar.com/ansible_host=${HOST}/g" inventory 
-	ansible-playbook -i inventory install-docker.yml -vv || die
+	sed -i "s/ansible_host=host1.bachar.com/ansible_host=${HOST}/g" inventories/docker-inventory 
+	ansible-playbook -i inventories/docker-inventory install-docker.yml -vv || die
 
 	# testing docker installation by running nginx container
 	docker run --name ${nginx_name} -d -p ${nginx_port}:80 nginx
@@ -159,7 +135,64 @@ then
 	else
 		info "bibi-nginx return status : $nginx_test"
 	fi
+}
+
+install_MySql_Cluster()
+{
+	# install the pip docker for the ansible run
+	pip install docker || die
+	# downloading docker ansible role from git
+	if [ -d /vagrant/playbooks/roles/MySQL-cluster ]
+	then
+		rm -rf /vagrant/playbooks/roles/MySQL-cluster 
+	fi
+	#mkdir -p /vagrant/playbooks/roles/ansible-role-docker
+	#GIT_SSH="$PWD/ssh" git clone git@github.com:geerlingguy/ansible-role-docker.git /vagrant/playbooks/roles/ansible-role-docker || die
+	git clone git@github.com:amitbachar/MySQL-cluster.git /vagrant/playbooks/roles/MySQL-cluster || die
+	# Installing MySql Cluster via ansible
+	cd /vagrant/playbooks/
+	sed -i "s/ansible_host=host1.bachar.com/ansible_host=${HOST}/g" inventories/mqsql-cluster-inventory 
+	ansible-playbook -i inventories/mqsql-cluster-inventory mqsql-cluster.yml -vv || die
+}
+
+# M A I N
+
+init
+
+while getopts ":n:p:dm" opt; do
+    case "$opt" in
+        n)
+            nginx_name="$OPTARG"
+            echo $nginx_name 
+            ;;
+        p)
+            nginx_port="$OPTARG"
+            echo $nginx_port 
+            ;;
+        d)
+            install_docker="yes"
+            echo $install_docker 
+            ;;
+        m)
+            install_mysql_cluster="yes"
+            echo $install_docker 
+            ;;
+    esac
+done
+
+install_3rd_party
+echo "install_docker => $install_docker"
+if [ $install_docker == yes ]
+then
+	install_docker
+	# MySql Cluster will get installed only when docker will get installed
+	echo "install_mysql_cluster => $install_mysql_cluster"
+	if [ $install_mysql_cluster == yes ]
+	then
+		install_MySql_Cluster
+	fi
 fi
+
 printline
 ifconfig -a | grep "inet ";
 printline
