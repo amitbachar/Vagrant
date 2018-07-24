@@ -1,5 +1,5 @@
 ## withoud docker
-vagrant --hostname=host1.bachar.com -- destroy --force
+vagrant --hostname=host22.bachar.com -- destroy --force
 vagrant --hostname=host2.bachar.com -- destroy --force
 vagrant --hostname=host3.bachar.com -- destroy --force
 #with Docker 
