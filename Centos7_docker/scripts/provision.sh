@@ -259,8 +259,8 @@ install_MySql_Cluster()
 	git clone https://github.com/amitbachar/MySQL-cluster.git /vagrant/playbooks/roles/MySQL-cluster || die
 	# Installing MySql Cluster via ansible
 	cd /vagrant/playbooks/
-	sed -i "s/ansible_host=host1.bachar.com/ansible_host=${HOST}/g" inventories/mqsql-cluster-inventory 
-	ansible-playbook -i inventories/mqsql-cluster-inventory mqsql-cluster.yml -vv || die
+	sed -i "s/ansible_host=host1.bachar.com/ansible_host=${HOST}/g" inventories/mysql-cluster-inventory 
+	ansible-playbook -i inventories/mysql-cluster-inventory mysql-cluster.yml -vv || die
 }
 
 # M A I N
