@@ -38,7 +38,7 @@ Usage: $0 [--nginx_name string] [--nginx_port integer] [--install_docker bool]  
 ## Examples :
 
 
-#### Example for creating virtual machine : 
+#### creating virtual machine : 
 ```
 With Docker without MySql - 
 SHELL_ARGS='--nginx_name my-nginx --nginx_port 8080 --install_docker yes --install_mysql_cluster yes' vagrant --hostname=host22.bachar.com -- up
@@ -53,7 +53,7 @@ SHELL_ARGS='--nginx_name my-nginx --nginx_port 8080 --install_docker yes --insta
 SHELL_ARGS='--nginx_name my-nginx --nginx_port 8080 --install_docker yes --install_mysql_cluster yes --http_proxy http://genproxy:8080' vagrant --hostname=host22.bachar.com -- up
 ```
 
-### Example for provisioning virtual machine : 
+### provisioning virtual machine : 
 
 #### With Docker without MySql - 
 ```
@@ -68,7 +68,7 @@ SHELL_ARGS='--nginx_name my-nginx --nginx_port 8080 --install_docker yes --insta
 SHELL_ARGS='--nginx_name my-nginx --nginx_port 8080 --install_docker yes --install_mysql_cluster yes --http_proxy http://genproxy:8080' vagrant --hostname=host22.bachar.com -- provision
 ```
 
-### Example for Erasing virtual machine : 
+### Erasing virtual machine : 
 ```
 vagrant --hostname=host22.bachar.com -- destroy --force
 ```
