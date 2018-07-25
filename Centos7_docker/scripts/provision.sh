@@ -291,11 +291,13 @@ init
 
 checkParameters $*
 install_3rd_party
+install_docker=$(echo $install_docker|tr "[:upper:]" "[:lower:]")
 echo "install_docker => $install_docker"
 if [ $install_docker == yes ]
 then
 	install_docker
 	# MySql Cluster will get installed only when docker will get installed
+	install_mysql_cluster=$(echo $install_mysql_cluster|tr "[:upper:]" "[:lower:]")
 	echo "install_mysql_cluster => $install_mysql_cluster"
 	if [ $install_mysql_cluster == yes ]
 	then
